@@ -8,6 +8,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Exception;
 
 /**
  * @method User|null find($id, $lockMode = null, $lockVersion = null)
@@ -37,7 +38,7 @@ class UserRepository extends ServiceEntityRepository
         $password = $data['password'];
 
         if (empty($firstName) || empty($lastName) || empty($email) || empty($password)) {
-           return false;
+            return false;
         }
 
         $passwordEncoded = $this->passwordEncoder->encodePassword($user, $password);
@@ -60,7 +61,7 @@ class UserRepository extends ServiceEntityRepository
         !empty($data['firstName']) ? $user->setFirstname($data['firstName']) : false;
         !empty($data['lastName']) ? $user->setLastname($data['lastName']) : false;
         !empty($data['email']) ? $user->setEmail($data['email']) : false;
-        !empty($data['password']) ? $user->setEmail($this->passwordEncoder->encodePassword($user, $data['password'])) : false;
+        !empty($data['password']) ? $user->setPassword($this->passwordEncoder->encodePassword($user, $data['password'])) : false;
 
         $this->em->persist($user);
         $this->em->flush();

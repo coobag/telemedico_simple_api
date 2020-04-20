@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 interface UserServiceInterface
 {
     public function getUsersArrayRest(Request $request);
-    public function getUserArrayRest(User $user);
+    public function getUserArrayRest(Request $request);
     public function createUser(Request $request);
     public function updateUser(Request $request, User $user);
     public function deleteUser(User $user);

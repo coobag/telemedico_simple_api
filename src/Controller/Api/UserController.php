@@ -11,6 +11,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Psr\Log\LoggerInterface;
 use Exception;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 
 
 class UserController extends AbstractController
@@ -29,6 +31,7 @@ class UserController extends AbstractController
      * @param Request $request
      * @return JsonResponse
      * @throws Exception
+     * @IsGranted("ROLE_USER")
      */
     public function listUser(Request $request): JsonResponse
     {
@@ -56,27 +59,19 @@ class UserController extends AbstractController
     }
 
     /**
-     * @Route("/user/{user}", methods={"GET"}, name="api_user_get")
-     * @param User $user
+     * @Route("/user", methods={"GET"}, name="api_user_get")
+     * @param Request $request
      * @return JsonResponse
      * @throws \Exception
      */
-    public function singleUser(User $user): JsonResponse
+    public function singleUser(Request $request): JsonResponse
     {
         try {
-            $status = $this->userService->getUserArrayRest($user);
-
-            if(!empty($responseData)) {
-                return new JsonResponse(
-                    $responseData,
-                    Response::HTTP_OK
-                );
-            } else {
-                return new JsonResponse(
-                    [],
-                    Response::HTTP_NO_CONTENT
-                );
-            }
+            $user = $this->userService->getUserArrayRest($request);
+            return new JsonResponse(
+                $user,
+                Response::HTTP_OK
+            );
         } catch (Exception $e) {
             $this->logger->critical($e->getMessage());
 
@@ -93,22 +88,12 @@ class UserController extends AbstractController
     public function createUser(Request $request): JsonResponse
     {
         try {
-            $responseData = [
-                'status' => 'User has been created!',
-                'user' => $this->userService->createUser($request)
-            ];
+            $this->userService->createUser($request);
 
-            if(!empty($responseData)) {
-                return new JsonResponse(
-                    $responseData,
-                    Response::HTTP_CREATED
-                );
-            } else {
-                return new JsonResponse(
-                    [],
-                    Response::HTTP_NO_CONTENT
-                );
-            }
+            return new JsonResponse(
+                ['status' => 'User has been created!'],
+                Response::HTTP_CREATED
+            );
         } catch (Exception $e) {
             $this->logger->critical($e->getMessage());
 
@@ -125,13 +110,10 @@ class UserController extends AbstractController
     public function updateUser(Request $request, User $user): JsonResponse
     {
         try {
-            $responseData = [
-                'status' => 'User has been updated!',
-                'user' => $this->userService->updateUser($request, $user)
-            ];
+            $this->userService->updateUser($request, $user);
 
             return new JsonResponse(
-                $responseData,
+                ['status' => 'User has been updated!'],
                 Response::HTTP_OK
             );
         } catch (Exception $e) {
@@ -147,7 +129,7 @@ class UserController extends AbstractController
      * @return JsonResponse
      * @throws Exception
      */
-    public function deleteUser($user): JsonResponse
+    public function deleteUser(User $user): JsonResponse
     {
         try {
             $this->userService->deleteUser($user);

@@ -121,7 +121,8 @@ class User implements UserInterface
 
     public function getRoles()
     {
-        return null;
+        $roles[] = static::ROLE_DEFAULT;
+        return array_unique($roles);
     }
     public function getSalt()
     {

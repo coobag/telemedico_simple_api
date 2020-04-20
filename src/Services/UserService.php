@@ -39,6 +39,11 @@ class UserService implements UserServiceInterface
 
         $userRepository = $this->em->getRepository(User::class);
 
+        if(!empty($userRepository->findOneBy(['email' => $data['email']])))
+        {
+            return false;
+        }
+
         return $userRepository->createUser($data);
     }
 
@@ -50,7 +55,8 @@ class UserService implements UserServiceInterface
          * data from Request
          * pagination, filters, ...
          */
-        $page = $data['page'];
+        //$page = $data['page'];
+        $page = 1;
         $pageElements = $this->container->getParameter('page_elements');
         $offset = ($page - 1) * $pageElements;
 
@@ -70,8 +76,10 @@ class UserService implements UserServiceInterface
         return $userArray;
     }
 
-    public function getUserArrayRest(User $user): array
+    public function getUserArrayRest(Request $request): array
     {
+        $userId = $request->query->get('id');
+        $user = $this->em->getRepository(User::class)->findOneBy(['id' => $userId]);
         return $user->toArrayRest();
     }
 
